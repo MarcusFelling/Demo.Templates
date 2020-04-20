@@ -1,10 +1,20 @@
 # Repo: Demo/Demo.Templates
 
 # 
-
+steps:
+- download: current
+  artifact: drop
 - task: AzureWebApp@1
 displayName: 'Azure App Service Deploy: website'
 inputs:
   azureSubscription: 'tailspin-space-game-rg'
   appName: '$(appName)-$(System.StageName)-$(appID)'
   package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+- task: AzureCLI@2
+  displayName: 'Set connection string'
+  inputs:
+    azureSubscription: 'tailspin-space-game-rg'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az webapp config connection-string set --name $(appName)-$(System.StageName)-$(appID) --resource-group tailspin-space-game-rg --connection-string-type SQLAzure --settings "DefaultConnection=Server=tcp:$(servername).database.windows.net,1433;Initial Catalog=$(databasename);Persist Security Info=False;User ID=$(adminlogin);Password=$(adminPassword);MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"          
