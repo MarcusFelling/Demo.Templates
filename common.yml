@@ -7,9 +7,6 @@ steps:
     toolMajorVersion: V2
     debugMode: false
 
-- task: securedevelopmentteam.vss-secure-development-tools.build-task-moderncop.ModernCop@2
-  displayName: 'Run ModernCop'
-
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-vulnerabilityassessment.VulnerabilityAssessment@0
   displayName: 'Run Vulnerability Assessment'
 
@@ -17,10 +14,9 @@ steps:
   displayName: 'Create Security Analysis Report'
   inputs:
     CredScan: true
-    ModernCop: true
 
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@1
   displayName: 'Post Analysis'
   inputs:
     CredScan: true
-    ModernCop: true
+
