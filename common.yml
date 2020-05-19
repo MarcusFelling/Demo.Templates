@@ -12,7 +12,8 @@ steps:
 
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-codemetrics.CodeMetrics@1
   displayName: 'Run CodeMetrics '
-  Files: '$(Build.SourcesDirectory)\**\*.exe;$(Build.SourcesDirectory)\**\*.dll'  
+  inputs:
+    Files: '$(Build.SourcesDirectory)\**\*.exe;$(Build.SourcesDirectory)\**\*.dll' 
 
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-vulnerabilityassessment.VulnerabilityAssessment@0
   displayName: 'Run Vulnerability Assessment'
