@@ -10,12 +10,6 @@ steps:
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-moderncop.ModernCop@2
   displayName: 'Run ModernCop'
 
-- task: securedevelopmentteam.vss-secure-development-tools.build-task-codemetrics.CodeMetrics@1
-  displayName: 'Run CodeMetrics '
-  inputs:
-    Files: '$(Build.SourcesDirectory)\**\*.exe;$(Build.SourcesDirectory)\**\*.dll' 
-    Directory: '$(Build.SourcesDirectory)\**\*.exe;$(Build.SourcesDirectory)\**\*.dll'
-
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-vulnerabilityassessment.VulnerabilityAssessment@0
   displayName: 'Run Vulnerability Assessment'
 
