@@ -2,7 +2,7 @@
 
 parameters:
 - name: bypass # name of the parameter; used to skip steps below if true
-  type: boolean # data type of the parameter
+  type: string # data type of the parameter
   default: false # do not skip steps below by default
 
 steps:
