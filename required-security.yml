@@ -1,6 +1,13 @@
 # Repo: Demo/Demo.Templates
 
+parameters:
+- name: bypass # name of the parameter; required
+  type: boolean # data type of the parameter; required
+  default: false
+
 steps:
+- script: echo ${{ parameters.bypass }}
+
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
   displayName: 'Run CredScan'
   inputs:
