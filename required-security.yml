@@ -1,29 +1,31 @@
 # Repo: Demo/Demo.Templates
 
 parameters:
-- name: bypass # name of the parameter; required
-  type: boolean # data type of the parameter; required
-  default: false
+- name: bypass # name of the parameter; used to skip steps below if true
+  type: boolean # data type of the parameter
+  default: false # do not skip steps below by default
 
 steps:
-- script: echo ${{ parameters.bypass }}
-
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
   displayName: 'Run CredScan'
   inputs:
     toolMajorVersion: V2
     debugMode: false
+  condition: and(succeeded(), eq('${{ parameters.bypass }}', false))
 
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-vulnerabilityassessment.VulnerabilityAssessment@0
   displayName: 'Run Vulnerability Assessment'
+  condition: and(succeeded(), eq('${{ parameters.bypass }}', false))
 
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-report.SdtReport@1
   displayName: 'Create Security Analysis Report'
   inputs:
     CredScan: true
+  condition: and(succeeded(), eq('${{ parameters.bypass }}', false))
 
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@1
   displayName: 'Post Analysis'
   inputs:
     CredScan: true
+  condition: and(succeeded(), eq('${{ parameters.bypass }}', false))    
 
