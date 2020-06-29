@@ -4,7 +4,7 @@ parameters:
 - name: bypass # name of the parameter; used to skip steps below if true
   type: string # data type of the parameter
   default: false # do not skip steps below by default
--name: serviceconnection
+- name: serviceconnection
   type: string
   default: tailspin-space-game-rg
 
