@@ -4,9 +4,6 @@ parameters:
 - name: bypass # name of the parameter; used to skip steps below if true
   type: string # data type of the parameter
   default: false # do not skip steps below by default
-- name: serviceconnection
-  type: string
-  default: tailspin-space-game-rg
 
 steps:
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
@@ -30,13 +27,5 @@ steps:
   displayName: 'Post Analysis'
   inputs:
     CredScan: true
-  condition: and(succeeded(), eq('${{ parameters.bypass }}', false))    
-
-- task: AzureRmWebAppDeployment@4
-  inputs:
-    ConnectionType: 'AzureRM'
-    azureSubscription: ${{ parameters.serviceconnection }}
-    appType: 'webApp'
-    WebAppName: 'tailspin-space-game-web-dev-26178'
-    packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
+  condition: and(succeeded(), eq('${{ parameters.bypass }}', false))
 
