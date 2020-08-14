@@ -24,6 +24,12 @@ parameters:
     - name: minTestCoverage
       type: number
       default: 80
+      values:
+      - 20
+      - 40
+      - 60
+      - 80
+      - 100
     - name: maxIssues
       type: number
       default: 0
