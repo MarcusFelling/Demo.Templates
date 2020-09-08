@@ -9,9 +9,9 @@ steps:
 - task: AzureCLI@1
   displayName: 'Deploy Terraform State Storage'
   inputs:
-      azureSubscription: '$(serviceConnection)'
-      scriptLocation: inlineScript
-      inlineScript: |
+    azureSubscription: '$(serviceConnection)'
+    scriptLocation: inlineScript
+    inlineScript: |
       call az group create --location centralus --name $(terraformstoragerg)
       call az storage account create --name $(terraformstorageaccount) --resource-group $(terraformstoragerg) --location centralus --sku Standard_LRS
       call az storage container create --name terraform --account-name $(terraformstorageaccount)
@@ -19,72 +19,72 @@ steps:
 - task: AzurePowerShell@3
   displayName: 'Get Terraform State Storage Key'
   inputs:
-      azureSubscription: '$(serviceConnection)'
-      ScriptType: 'InlineScript'
-      Inline: |
+    azureSubscription: '$(serviceConnection)'
+    ScriptType: 'InlineScript'
+    Inline: |
       # Using this script we will fetch storage key which is required in terraform file to authenticate backend storage account
       $key=(Get-AzureRmStorageAccountKey -ResourceGroupName $(terraformstoragerg) -AccountName $(terraformstorageaccount)).Value[0]
       Write-Host "##vso[task.setvariable variable=storagekey]$key"
-      azurePowerShellVersion: 'LatestVersion'
+    azurePowerShellVersion: 'LatestVersion'
 - task: replacetokens@3
   displayName: 'Replace Tokens with Variables'
   inputs:
-      targetFiles: '$(Pipeline.Workspace)/dropTerraform/Tailspin.SpaceGame.Terraform/*.tf'
-      encoding: 'auto'
-      writeBOM: true
-      escapeType: 'none'
-      actionOnMissing: 'fail'
-      keepToken: false
-      tokenPrefix: '__'
-      tokenSuffix: '__'
-      useLegacyPattern: false
-      enableTelemetry: true
+    targetFiles: '$(Pipeline.Workspace)/dropTerraform/Tailspin.SpaceGame.Terraform/*.tf'
+    encoding: 'auto'
+    writeBOM: true
+    escapeType: 'none'
+    actionOnMissing: 'fail'
+    keepToken: false
+    tokenPrefix: '__'
+    tokenSuffix: '__'
+    useLegacyPattern: false
+    enableTelemetry: true
 - task: TerraformInstaller@0
   inputs:
-      terraformVersion: '0.12.3'
+    terraformVersion: '0.12.3'
 - task: TerraformTaskV1@0
   displayName: 'Terraform : init'
   inputs:
-      provider: 'azurerm'
-      command: 'init'
-      workingDirectory: '$(Pipeline.Workspace)/dropTerraform/Tailspin.SpaceGame.Terraform/'
-      backendServiceArm: $(serviceConnection)
-      backendAzureRmResourceGroupName: '$(terraformstoragerg)'
-      backendAzureRmStorageAccountName: '$(terraformstorageaccount)'
-      backendAzureRmContainerName: 'terraform'
-      backendAzureRmKey: 'terraform.tfstate'
+    provider: 'azurerm'
+    command: 'init'
+    workingDirectory: '$(Pipeline.Workspace)/dropTerraform/Tailspin.SpaceGame.Terraform/'
+    backendServiceArm: $(serviceConnection)
+    backendAzureRmResourceGroupName: '$(terraformstoragerg)'
+    backendAzureRmStorageAccountName: '$(terraformstorageaccount)'
+    backendAzureRmContainerName: 'terraform'
+    backendAzureRmKey: 'terraform.tfstate'
 - task: TerraformTaskV1@0
   displayName: 'Terraform : plan'
   inputs:
-      command: plan
-      workingDirectory: '$(Pipeline.Workspace)/dropTerraform/Tailspin.SpaceGame.Terraform/'
-      environmentServiceNameAzureRM: $(serviceConnection)
-      backendAzureRmResourceGroupName: '$(terraformstoragerg)'
-      backendAzureRmStorageAccountName: '$(terraformstorageaccount) '
-      backendAzureRmContainerName: terraform
-      backendAzureRmKey: '$(storagekey)'
+    command: plan
+    workingDirectory: '$(Pipeline.Workspace)/dropTerraform/Tailspin.SpaceGame.Terraform/'
+    environmentServiceNameAzureRM: $(serviceConnection)
+    backendAzureRmResourceGroupName: '$(terraformstoragerg)'
+    backendAzureRmStorageAccountName: '$(terraformstorageaccount) '
+    backendAzureRmContainerName: terraform
+    backendAzureRmKey: '$(storagekey)'
 - task: TerraformTaskV1@0
   displayName: 'Terraform : apply -auto-approve'
   inputs:
-      command: apply
-      workingDirectory: '$(Pipeline.Workspace)/dropTerraform/Tailspin.SpaceGame.Terraform/'
-      commandOptions: '-auto-approve'
-      environmentServiceNameAzureRM: $(serviceConnection)
-      backendAzureRmResourceGroupName: '$(terraformstoragerg)'
-      backendAzureRmStorageAccountName: '$(terraformstorageaccount) '
-      backendAzureRmContainerName: terraform
-      backendAzureRmKey: '$(storagekey)'
+    command: apply
+    workingDirectory: '$(Pipeline.Workspace)/dropTerraform/Tailspin.SpaceGame.Terraform/'
+    commandOptions: '-auto-approve'
+    environmentServiceNameAzureRM: $(serviceConnection)
+    backendAzureRmResourceGroupName: '$(terraformstoragerg)'
+    backendAzureRmStorageAccountName: '$(terraformstorageaccount) '
+    backendAzureRmContainerName: terraform
+    backendAzureRmKey: '$(storagekey)'
 - task: AzureWebApp@1
   displayName: 'Azure App Service Deploy: website'
   inputs:
-      azureSubscription: '$(serviceConnection)'
-      appName: '$(appservicename)'
-      package: '$(Pipeline.Workspace)/dropApp/$(buildConfiguration)/*.zip'
+    azureSubscription: '$(serviceConnection)'
+    appName: '$(appservicename)'
+    package: '$(Pipeline.Workspace)/dropApp/$(buildConfiguration)/*.zip'
 - task: AzureCLI@2
   displayName: 'Set connection string'
   inputs:
-      azureSubscription: '$(serviceConnection)'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
+    azureSubscription: '$(serviceConnection)'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
       az webapp config connection-string set --name $(appservicename) --resource-group $(appresourcegroup) --connection-string-type SQLAzure --settings "DefaultConnection=Server=tcp:$(servername).database.windows.net,1433;Initial Catalog=$(databasename);Persist Security Info=False;User ID=$(adminlogin);Password=$(adminPassword);MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
