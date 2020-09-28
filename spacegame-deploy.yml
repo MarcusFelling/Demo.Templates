@@ -74,7 +74,8 @@ steps:
     gitHubConnection: 'MarcusFelling'
     repositoryName: 'MarcusFelling/Demo.SpaceGame'
     comment: 'SHOW TF PLAN OUTPUT HERE'
-  condition: and(failed(), eq(variables['Build.Reason'], 'PullRequest'))
+  condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
+  
 - task: TerraformTaskV1@0
   displayName: 'Terraform : apply -auto-approve'
   inputs:
@@ -87,6 +88,7 @@ steps:
     backendAzureRmContainerName: terraform
     backendAzureRmKey: '$(storagekey)'
   condition: eq(variables['build.sourceBranch'], 'refs/heads/master')
+  
 - task: AzureWebApp@1
   displayName: 'Azure App Service Deploy: website'
   inputs:
@@ -94,6 +96,7 @@ steps:
     appName: '$(appservicename)'
     package: '$(Pipeline.Workspace)/dropApp/$(buildConfiguration)/*.zip'
   condition: eq(variables['build.sourceBranch'], 'refs/heads/master')
+  
 - task: AzureCLI@2
   displayName: 'Set connection string'
   inputs:
