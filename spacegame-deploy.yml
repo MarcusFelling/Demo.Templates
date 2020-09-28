@@ -67,7 +67,7 @@ steps:
   inputs:
     command: plan
     workingDirectory: '$(Pipeline.Workspace)/dropTerraform/Tailspin.SpaceGame.Terraform/'
-    commandOptions: '-out=$(Pipeline.Workspace)\planoutput.txt'
+    commandOptions: '-no-color -out=$(Pipeline.Workspace)\planoutput.txt'
     environmentServiceNameAzureRM: $(serviceConnection)
     backendAzureRmResourceGroupName: '$(terraformstoragerg)'
     backendAzureRmStorageAccountName: '$(terraformstorageaccount) '
