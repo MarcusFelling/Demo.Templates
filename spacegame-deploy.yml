@@ -62,18 +62,29 @@ steps:
   inputs:
     command: plan
     workingDirectory: '$(Pipeline.Workspace)/dropTerraform/Tailspin.SpaceGame.Terraform/'
+    commandOptions: '-out=$(Pipeline.Workspace)\planoutput.txt'
     environmentServiceNameAzureRM: $(serviceConnection)
     backendAzureRmResourceGroupName: '$(terraformstoragerg)'
     backendAzureRmStorageAccountName: '$(terraformstorageaccount) '
     backendAzureRmContainerName: terraform
     backendAzureRmKey: '$(storagekey)'
 
+- task: PowerShell@2
+  displayName: "Get plan output for use in next step"
+  inputs:
+    targetType: 'inline'
+    script: |  
+      $GetOutput = Get-Content $(Pipeline.Workspace)\planoutput.txt
+      Write-Host "##vso[task.setvariable variable=PlanOutput]$GetOuptut"
+    pwsh: true
+  condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
+
 - task: GitHubComment@0
   displayName: For PR's, add GitHub comment with Terraform Plan output
   inputs:
     gitHubConnection: 'MarcusFelling'
     repositoryName: 'MarcusFelling/Demo.SpaceGame'
-    comment: 'SHOW TF PLAN OUTPUT HERE'
+    comment: 'Terraform Plan Output: $(PlanOutput)'
   condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
   
 - task: TerraformTaskV1@0
