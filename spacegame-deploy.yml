@@ -42,6 +42,10 @@ steps:
 - task: TerraformInstaller@0
   inputs:
     terraformVersion: '0.12.3'
+  
+- script: terraform fmt -check
+  displayName: Terraform Format
+
 - task: TerraformTaskV1@0
   displayName: 'Terraform : init'
   inputs:
