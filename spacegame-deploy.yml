@@ -80,9 +80,9 @@ steps:
   inputs:
     targetType: 'inline'
     script: |  
-      $GetOutput = Get-Content $(Pipeline.Workspace)\planoutput.txt
-      echo "##vso[task.setvariable variable=PlanOutput;isOutput=true]$GetOuput"
-    pwsh: true
+      Get-Content "$(Pipeline.Workspace)\planoutput.txt"
+      $GetOutput = Get-Content "$(Pipeline.Workspace)\planoutput.txt"
+      echo "##vso[task.setvariable variable=PlanOutput;isOutput=true]$GetOutput"
   condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
 - task: GitHubComment@0
