@@ -80,7 +80,7 @@ steps:
   inputs:
     gitHubConnection: 'MarcusFelling'
     repositoryName: 'MarcusFelling/Demo.SpaceGame'
-    comment: '#### Terraform Format and Style 🖌:Successful\ #### Terraform Initialization ⚙️:Successful\ #### Terraform Plan 📖:Successful'
+    comment: '#### Terraform Plan 📖:Successful'
   condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
   
 - task: TerraformTaskV1@0
