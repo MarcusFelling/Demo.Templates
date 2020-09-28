@@ -6,6 +6,7 @@ steps:
 - download: current
   displayName: Terraform Download
   artifact: dropTerraform
+  
 - task: AzureCLI@1
   displayName: 'Deploy Terraform State Storage'
   inputs:
@@ -16,6 +17,7 @@ steps:
       call az storage account create --name $(terraformstorageaccount) --resource-group $(terraformstoragerg) --location centralus --sku Standard_LRS
       call az storage container create --name terraform --account-name $(terraformstorageaccount)
       call az storage account keys list -g $(terraformstoragerg) -n $(terraformstorageaccount)
+      
 - task: AzurePowerShell@3
   displayName: 'Get Terraform State Storage Key'
   inputs:
@@ -26,6 +28,7 @@ steps:
       $key=(Get-AzureRmStorageAccountKey -ResourceGroupName $(terraformstoragerg) -AccountName $(terraformstorageaccount)).Value[0]
       Write-Host "##vso[task.setvariable variable=storagekey]$key"
     azurePowerShellVersion: 'LatestVersion'
+    
 - task: replacetokens@3
   displayName: 'Replace Tokens with Variables'
   inputs:
@@ -39,6 +42,7 @@ steps:
     tokenSuffix: '__'
     useLegacyPattern: false
     enableTelemetry: true
+    
 - task: TerraformInstaller@0
   inputs:
     terraformVersion: '0.12.3'
@@ -57,6 +61,7 @@ steps:
     backendAzureRmStorageAccountName: '$(terraformstorageaccount)'
     backendAzureRmContainerName: 'terraform'
     backendAzureRmKey: '$(System.StageName).terraform.tfstate'
+    
 - task: TerraformTaskV1@0
   displayName: 'Terraform : plan'
   inputs:
@@ -70,12 +75,13 @@ steps:
     backendAzureRmKey: '$(storagekey)'
 
 - task: PowerShell@2
+  name: setOutputVarStep
   displayName: "Get plan output for use in next step"
   inputs:
     targetType: 'inline'
     script: |  
       $GetOutput = Get-Content $(Pipeline.Workspace)\planoutput.txt
-      Write-Host "##vso[task.setvariable variable=PlanOutput]$GetOuptut"
+      echo "##vso[task.setvariable variable=PlanOutput;isOutput=true]$GetOuptut"
     pwsh: true
   condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
@@ -84,7 +90,7 @@ steps:
   inputs:
     gitHubConnection: 'MarcusFelling'
     repositoryName: 'MarcusFelling/Demo.SpaceGame'
-    comment: 'Terraform Plan Output: $(PlanOutput)'
+    comment: 'Terraform Plan Output: $(setOutputVarStep.PlanOutput)'
   condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
   
 - task: TerraformTaskV1@0
