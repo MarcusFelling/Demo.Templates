@@ -81,7 +81,7 @@ steps:
     targetType: 'inline'
     script: |  
       $GetOutput = Get-Content $(Pipeline.Workspace)\planoutput.txt
-      echo "##vso[task.setvariable variable=PlanOutput;isOutput=true]$GetOuptut"
+      echo "##vso[task.setvariable variable=PlanOutput;isOutput=true]$GetOuput"
     pwsh: true
   condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
