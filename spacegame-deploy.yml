@@ -61,7 +61,7 @@ steps:
       templateLocation: 'Linked artifact'
       csmFile: '$(Pipeline.Workspace)/dropARM/*.json'
       deploymentMode: 'Apply'
-      condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master')
+      condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
 
   - task: AzureWebApp@1
     displayName: 'Azure App Service Deploy: website'
@@ -69,7 +69,7 @@ steps:
       azureSubscription: '$(serviceConnection)'
       appName: '$(appservicename)'
       package: '$(Pipeline.Workspace)/dropApp/$(buildConfiguration)/*.zip'
-    condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master')
+    condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
 
   - task: AzureCLI@2
     displayName: 'Set connection string'
@@ -79,4 +79,4 @@ steps:
       scriptLocation: 'inlineScript'
       inlineScript: |
         az webapp config connection-string set --name $(appservicename) --resource-group $(appresourcegroup) --connection-string-type SQLAzure --settings "DefaultConnection=Server=tcp:$(servername).database.windows.net,1433;Initial Catalog=$(databasename);Persist Security Info=False;User ID=$(adminlogin);Password=$(adminPassword);MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-    condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master')
+    condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
