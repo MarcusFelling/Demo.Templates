@@ -26,6 +26,13 @@ steps:
     inputs:
       templatelocation: '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
       resultLocation: '$(Pipeline.Workspace)/dropARM/'
+      
+  - task: PublishTestResults@2
+    displayName: 'Publish Azure Resource Manager Template Toolkit results'
+    inputs:
+      testResultsFormat: 'NUnit'
+      testResultsFiles: '$(Pipeline.Workspace)\dropARM\*-armttk.xml'
+    condition: always()      
 
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
