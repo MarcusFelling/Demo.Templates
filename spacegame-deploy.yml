@@ -44,7 +44,7 @@ steps:
       resourceGroupName: '$(appresourcegroup)'
       location: '$(region)'
       templateLocation: 'Linked artifact'
-      csmFile: '$(Pipeline.Workspace)/dropARM/*.json'
+      csmFile: '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
       deploymentMode: 'Validation'
       condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
@@ -66,7 +66,7 @@ steps:
       resourceGroupName: '$(appresourcegroup)'
       location: '$(region)'
       templateLocation: 'Linked artifact'
-      csmFile: '$(Pipeline.Workspace)/dropARM/*.json'
+      csmFile: '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
       deploymentMode: 'Apply'
       condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
 
