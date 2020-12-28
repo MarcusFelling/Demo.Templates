@@ -37,7 +37,7 @@ steps:
   - task: AzureCLI@2
     displayName: 'Preview ARM Template'
     inputs:
-      azureSubscription: $(serviceConnection)'
+      azureSubscription: $(serviceConnection)
       scriptType: 'ps'
       scriptLocation: 'inlineScript'
       inlineScript: 'az deployment group what-if --resource-group $(appresourcegroup) --name $(appservicename) --template-file $(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/webapp.json'
