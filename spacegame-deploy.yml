@@ -6,7 +6,7 @@ steps:
   - download: current
     displayName: ARM Template Download
     artifact: dropARM
-    
+
   - task: replacetokens@3
     displayName: 'Replace Tokens with Variables'
     inputs:
@@ -20,27 +20,26 @@ steps:
       tokenSuffix: '__'
       useLegacyPattern: false
       enableTelemetry: true
-      
+
   - task: RunARMTTKTests@1
-  displayName: 'Run Azure Resource Manager Template Toolkit '
-  inputs:
-    templatelocation: '$(Pipeline.Workspace)/dropARM/*.json'
-    resultLocation: '$(Pipeline.Workspace)/dropARM/'
-    
-  
+    displayName: 'Run Azure Resource Manager Template Toolkit'
+    inputs:
+      templatelocation: '$(Pipeline.Workspace)/dropARM/*.json'
+      resultLocation: '$(Pipeline.Workspace)/dropARM/'
+
   - task: AzureResourceManagerTemplateDeployment@3
-  inputs:
-    displayName: 'Preview ARM Template'
-    deploymentScope: 'Resource Group'
-    azureResourceManagerConnection: '$(serviceConnection)'
-    subscriptionId: '$(subscriptionID)'
-    action: 'Create Or Update Resource Group'
-    resourceGroupName: '$(appresourcegroup)'
-    location: '$(region)'
-    templateLocation: 'Linked artifact'
-    csmFile: '$(Pipeline.Workspace)/dropARM/*.json'
-    deploymentMode: 'Validation'
-    condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
+    inputs:
+      displayName: 'Preview ARM Template'
+      deploymentScope: 'Resource Group'
+      azureResourceManagerConnection: $(serviceConnection)
+      subscriptionId: $(subscriptionID)
+      action: 'Create Or Update Resource Group'
+      resourceGroupName: '$(appresourcegroup)'
+      location: '$(region)'
+      templateLocation: 'Linked artifact'
+      csmFile: '$(Pipeline.Workspace)/dropARM/*.json'
+      deploymentMode: 'Validation'
+      condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
   - task: GitHubComment@0
     displayName: For PR's, add GitHub comment with ARM what-if output
@@ -49,13 +48,13 @@ steps:
       repositoryName: 'MarcusFelling/Demo.SpaceGame'
       comment: '#### ARM Deployment Preview 📖:Successful'
     condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
-    
-    - task: AzureResourceManagerTemplateDeployment@3
+
+  - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       displayName: 'Apply ARM Template'
       deploymentScope: 'Resource Group'
-      azureResourceManagerConnection: '$(serviceConnection)'
-      subscriptionId: '$(subscriptionID)'
+      azureResourceManagerConnection: $(serviceConnection)
+      subscriptionId: $(subscriptionID)
       action: 'Create Or Update Resource Group'
       resourceGroupName: '$(appresourcegroup)'
       location: '$(region)'
@@ -63,7 +62,7 @@ steps:
       csmFile: '$(Pipeline.Workspace)/dropARM/*.json'
       deploymentMode: 'Apply'
       condition: eq(variables['build.sourceBranch'], 'refs/heads/master')
-    
+
   - task: AzureWebApp@1
     displayName: 'Azure App Service Deploy: website'
     inputs:
@@ -71,7 +70,7 @@ steps:
       appName: '$(appservicename)'
       package: '$(Pipeline.Workspace)/dropApp/$(buildConfiguration)/*.zip'
     condition: eq(variables['build.sourceBranch'], 'refs/heads/master')
-    
+
   - task: AzureCLI@2
     displayName: 'Set connection string'
     inputs:
@@ -81,4 +80,3 @@ steps:
       inlineScript: |
         az webapp config connection-string set --name $(appservicename) --resource-group $(appresourcegroup) --connection-string-type SQLAzure --settings "DefaultConnection=Server=tcp:$(servername).database.windows.net,1433;Initial Catalog=$(databasename);Persist Security Info=False;User ID=$(adminlogin);Password=$(adminPassword);MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
     condition: eq(variables['build.sourceBranch'], 'refs/heads/master')
-  
