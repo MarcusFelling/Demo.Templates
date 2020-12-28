@@ -38,9 +38,9 @@ steps:
     displayName: 'Preview ARM Template'
     inputs:
       azureSubscription: $(serviceConnection)'
-      scriptType: 'pscore'
+      scriptType: 'ps'
       scriptLocation: 'inlineScript'
-      inlineScript: 'az deployment group what-if --resource-group $(appresourcegroup) --name $(appservicename) --template-file '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
+      inlineScript: 'az deployment group what-if --resource-group $(appresourcegroup) --name $(appservicename) --template-file $(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/webapp.json'
     condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
   - task: GitHubComment@0
