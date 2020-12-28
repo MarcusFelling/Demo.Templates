@@ -26,7 +26,7 @@ steps:
     inputs:
       templatelocation: '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
       resultLocation: '$(Pipeline.Workspace)/dropARM/'
-      
+
   - task: PublishTestResults@2
     displayName: 'Publish Azure Resource Manager Template Toolkit results'
     inputs:
@@ -34,19 +34,14 @@ steps:
       testResultsFiles: '$(Pipeline.Workspace)\dropARM\*-armttk.xml'
     condition: always()      
 
-  - task: AzureResourceManagerTemplateDeployment@3
+  - task: AzureCLI@2
+    displayName: 'Preview ARM Template'
     inputs:
-      displayName: 'Preview ARM Template'
-      deploymentScope: 'Resource Group'
-      azureResourceManagerConnection: $(serviceConnection)
-      subscriptionId: $(subscriptionID)
-      action: 'Create Or Update Resource Group'
-      resourceGroupName: '$(appresourcegroup)'
-      location: '$(region)'
-      templateLocation: 'Linked artifact'
-      csmFile: '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
-      deploymentMode: 'Validation'
-      condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
+      azureSubscription: $(serviceConnection)'
+      scriptType: 'pscore'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az deployment group what-if --resource-group $(appresourcegroup) --name $(appservicename) --template-file '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
+    condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
   - task: GitHubComment@0
     displayName: For PR's, add GitHub comment with ARM what-if output
@@ -67,7 +62,7 @@ steps:
       location: '$(region)'
       templateLocation: 'Linked artifact'
       csmFile: '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
-      deploymentMode: 'Apply'
+      deploymentMode: 'Incremental'
       condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
 
   - task: AzureWebApp@1
