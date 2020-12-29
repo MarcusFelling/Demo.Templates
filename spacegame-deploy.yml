@@ -47,8 +47,7 @@ steps:
         $results
         # Capture results to update the GitHub PR in next task
         $PRComment = '#### ARM Deployment Preview <details><summary>Show Preview</summary>$results</details>'
-        # Set PRComment variable for use in next task
-        Write-Host '##vso[task.setvariable variable=PRComment;]$PRComment'
+        Write-Host "##vso[task.setvariable variable=PRComment;]$PRComment"
     condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
   - task: GitHubComment@0
@@ -60,8 +59,8 @@ steps:
     condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
   - task: AzureResourceManagerTemplateDeployment@3
-    inputs:
-      displayName: 'Apply ARM Template'
+    displayName: 'Apply ARM Template'
+    inputs:                
       deploymentScope: 'Resource Group'
       azureResourceManagerConnection: $(serviceConnection)
       subscriptionId: $(subscriptionID)
@@ -71,7 +70,7 @@ steps:
       templateLocation: 'Linked artifact'
       csmFile: '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
       deploymentMode: 'Incremental'
-      condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
+    condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
 
   - task: AzureWebApp@1
     displayName: 'Azure App Service Deploy: website'
