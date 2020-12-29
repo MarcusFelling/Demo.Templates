@@ -46,7 +46,7 @@ steps:
         # Write results to console
         $results
         # Capture results to update the GitHub PR in next task
-        $PRComment = '#### ARM Deployment Preview <details><summary>Show Preview</summary>$results</details>'
+        $PRComment = "#### ARM Deployment Preview <details><summary>Show Preview</summary>$results</details>"
         Write-Host "##vso[task.setvariable variable=PRComment;]$PRComment"
     condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
