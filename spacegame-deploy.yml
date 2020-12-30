@@ -1,91 +1,92 @@
-          steps:
-            # Download artifacts for web app and Bicep/ARM
-            - download: current
-              displayName: App Download
-              artifact: dropApp
-            - download: current
-              displayName: ARM Template Download
-              artifact: dropARM
+steps:
+  # Download artifacts for web app and Bicep/ARM
+  - download: current
+    displayName: App Download
+    artifact: dropApp
+  - download: current
+    displayName: ARM Template Download
+    artifact: dropARM
 
-            - task: replacetokens@3
-              displayName: 'Replace Tokens with Variables'
-              inputs:
-                targetFiles: '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
-                encoding: 'auto'
-                writeBOM: true
-                escapeType: 'none'
-                actionOnMissing: 'fail'
-                keepToken: false
-                tokenPrefix: '__'
-                tokenSuffix: '__'
-                useLegacyPattern: false
-                enableTelemetry: true
+  - task: replacetokens@3
+    displayName: 'Replace Tokens with Variables'
+    inputs:
+      targetFiles: '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
+      encoding: 'auto'
+      writeBOM: true
+      escapeType: 'none'
+      actionOnMissing: 'fail'
+      keepToken: false
+      tokenPrefix: '__'
+      tokenSuffix: '__'
+      useLegacyPattern: false
+      enableTelemetry: true
 
-            - task: RunARMTTKTests@1
-              displayName: 'Run Azure Resource Manager Template Toolkit'
-              inputs:
-                templatelocation: '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
-                resultLocation: '$(Pipeline.Workspace)/dropARM/'
+  - task: RunARMTTKTests@1
+    displayName: 'Run Azure Resource Manager Template Toolkit'
+    inputs:
+      templatelocation: '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
+      resultLocation: '$(Pipeline.Workspace)/dropARM/'
 
-            - task: PublishTestResults@2
-              displayName: 'Publish Azure Resource Manager Template Toolkit results'
-              inputs:
-                testResultsFormat: 'NUnit'
-                testResultsFiles: '$(Pipeline.Workspace)\dropARM\*-armttk.xml'
-                testRunTitle: 'ARM Template Toolkit Tests (arm-ttk)'
-              condition: always()
-            - task: AzureCLI@2
-              displayName: 'Preview ARM Template'
-              inputs:
-                azureSubscription: $(serviceConnection)
-                scriptType: 'ps'
-                scriptLocation: 'inlineScript'
-                inlineScript: |
-                  # Run deployment using what-if
-                  $results = az deployment group what-if --resource-group $(appresourcegroup) --name $(appservicename) --template-file $(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/webapp.json | out-string
-                  # Write results to console
-                  $results
-                  # Capture results to update the GitHub PR in next task
-                  $PRComment = "#### ARM Deployment Preview <details><summary>Show Preview</summary>$results</details>"
-                  Write-Host "##vso[task.setvariable variable=PRComment;]$PRComment"
-              condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
+  - task: PublishTestResults@2
+    displayName: 'Publish Azure Resource Manager Template Toolkit results'
+    inputs:
+      testResultsFormat: 'NUnit'
+      testResultsFiles: '$(Pipeline.Workspace)\dropARM\*-armttk.xml'
+      testRunTitle: 'ARM Template Toolkit Tests (arm-ttk)'
+    condition: always()
+  - task: AzureCLI@2
+    displayName: 'Preview ARM Template'
+    inputs:
+      azureSubscription: $(serviceConnection)
+      scriptType: 'ps'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        # Run deployment using what-if
+        $results = az deployment group what-if --resource-group $(appresourcegroup) --name $(appservicename) --template-file $(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/webapp.json | out-string
+        # Write results to console
+        $results
+        # Capture results to update the GitHub PR in next task
+        $PRComment = "#### ARM Deployment Preview <details><summary>Show Preview</summary>" + $results + "</details>"
+        Write-Host "##vso[task.setvariable variable=comment;]$PRComment"
 
-            - task: GitHubComment@0
-              displayName: For PR's, add GitHub comment with ARM what-if output
-              inputs:
-                gitHubConnection: 'MarcusFelling'
-                repositoryName: 'MarcusFelling/Demo.SpaceGame'
-                comment: $(PRComment)            
-              condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
+    condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
-            - task: AzureResourceManagerTemplateDeployment@3
-              displayName: 'Apply ARM Template'
-              inputs:                
-                deploymentScope: 'Resource Group'
-                azureResourceManagerConnection: $(serviceConnection)
-                subscriptionId: $(subscriptionID)
-                action: 'Create Or Update Resource Group'
-                resourceGroupName: '$(appresourcegroup)'
-                location: '$(region)'
-                templateLocation: 'Linked artifact'
-                csmFile: '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
-                deploymentMode: 'Incremental'
-              condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
+  - task: GitHubComment@0
+    displayName: For PR's, add GitHub comment with ARM what-if output
+    inputs:
+      gitHubConnection: 'MarcusFelling'
+      repositoryName: 'MarcusFelling/Demo.SpaceGame'
+      comment: $(comment)            
+    condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
-            - task: AzureWebApp@1
-              displayName: 'Azure App Service Deploy: website'
-              inputs:
-                azureSubscription: '$(serviceConnection)'
-                appName: '$(appservicename)'
-                package: '$(Pipeline.Workspace)/dropApp/$(buildConfiguration)/*.zip'
-              condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
+  - task: AzureResourceManagerTemplateDeployment@3
+    displayName: 'Apply ARM Template'
+    inputs:                
+      deploymentScope: 'Resource Group'
+      azureResourceManagerConnection: $(serviceConnection)
+      subscriptionId: $(subscriptionID)
+      action: 'Create Or Update Resource Group'
+      resourceGroupName: '$(appresourcegroup)'
+      location: '$(region)'
+      templateLocation: 'Linked artifact'
+      csmFile: '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
+      deploymentMode: 'Incremental'
+    condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
 
-            - task: AzureCLI@2
-              displayName: 'Set connection string'
-              inputs:
-                azureSubscription: '$(serviceConnection)'
-                scriptType: 'bash'
-                scriptLocation: 'inlineScript'
-                inlineScript: |
-                  az webapp config connection-string set --name $(appservicename) --resource-group $(appresourcegroup) --connection-string-type SQLAzure --settings "DefaultConnection=Server=tcp:$(servername).database.windows.net,1433;Initial Catalog=$(databasename);Persist Security Info=False;User ID=$(adminlogin);Password=$(adminPassword);MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-              condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
+  - task: AzureWebApp@1
+    displayName: 'Azure App Service Deploy: website'
+    inputs:
+      azureSubscription: '$(serviceConnection)'
+      appName: '$(appservicename)'
+      package: '$(Pipeline.Workspace)/dropApp/$(buildConfiguration)/*.zip'
+    condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
+
+  - task: AzureCLI@2
+    displayName: 'Set connection string'
+    inputs:
+      azureSubscription: '$(serviceConnection)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az webapp config connection-string set --name $(appservicename) --resource-group $(appresourcegroup) --connection-string-type SQLAzure --settings "DefaultConnection=Server=tcp:$(servername).database.windows.net,1433;Initial Catalog=$(databasename);Persist Security Info=False;User ID=$(adminlogin);Password=$(adminPassword);MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+    condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
