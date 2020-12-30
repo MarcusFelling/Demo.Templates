@@ -45,10 +45,15 @@ steps:
         $results = az deployment group what-if --resource-group $(appresourcegroup) --name $(appservicename) --template-file $(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/webapp.json | out-string
         # Write results to console
         $results
-        # Capture results to update the GitHub PR in next task
-        $PRComment = "#### ARM Deployment Preview <details><summary>Show Preview</summary>" + $results + "</details>"
-        Write-Host "##vso[task.setvariable variable=comment;]$PRComment"
-
+        # Capture results to update the GitHub PR with comment in next task
+        $PRHeader = "#### ARM Deployment Preview" 
+        $PRSummary = "<details><summary>Show Preview</summary>"
+        $PRDetails = $results
+        $PRClosing = "</details>"
+        Write-Host "##vso[task.setvariable variable=comment;]$PRHeader"
+        Write-Host "##vso[task.setvariable variable=comment;]$PRSummary"
+        Write-Host "##vso[task.setvariable variable=comment;]$PRDetails"
+        Write-Host "##vso[task.setvariable variable=comment;]$PRClosing"
     condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
   - task: GitHubComment@0
@@ -56,7 +61,11 @@ steps:
     inputs:
       gitHubConnection: 'MarcusFelling'
       repositoryName: 'MarcusFelling/Demo.SpaceGame'
-      comment: $(comment)            
+      comment: | 
+        $(PRHeader)
+        $(PRSummary)
+        $(PRDetails)
+        $(PRClosing)
     condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
   - task: AzureResourceManagerTemplateDeployment@3
