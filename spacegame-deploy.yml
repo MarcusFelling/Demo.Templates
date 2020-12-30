@@ -50,10 +50,10 @@ steps:
         $PRSummary = "<details><summary>Show Preview</summary>"
         $PRDetails = $results
         $PRClosing = "</details>"
-        Write-Host "##vso[task.setvariable variable=comment;]$PRHeader"
-        Write-Host "##vso[task.setvariable variable=comment;]$PRSummary"
-        Write-Host "##vso[task.setvariable variable=comment;]$PRDetails"
-        Write-Host "##vso[task.setvariable variable=comment;]$PRClosing"
+        Write-Host "##vso[task.setvariable variable=PRHeader;]$PRHeader"
+        Write-Host "##vso[task.setvariable variable=PRSummary;]$PRSummary"
+        Write-Host "##vso[task.setvariable variable=PRDetails;]$PRDetails"
+        Write-Host "##vso[task.setvariable variable=PRClosing;]$PRClosing"
     condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
   - task: GitHubComment@0
