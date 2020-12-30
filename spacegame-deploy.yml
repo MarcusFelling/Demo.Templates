@@ -62,10 +62,10 @@ steps:
       scriptType: 'ps'
       scriptLocation: 'inlineScript'
       inlineScript: |
-        $PRHeader
-        $PRSummary
-        $PRDetails
-        $PRClosing
+        write-host $PRHeader
+        write-host $PRSummary
+        write-host $PRDetails
+        write-host $PRClosing
     condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))              
   - task: GitHubComment@0
     displayName: For PR's, add GitHub comment with ARM what-if output
