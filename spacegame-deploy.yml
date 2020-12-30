@@ -55,24 +55,7 @@ steps:
         Write-Host "##vso[task.setvariable variable=PRSummary;isOutput=true]$PRSummary"
         Write-Host "##vso[task.setvariable variable=PRDetails;isOutput=true]$PRDetails"
         Write-Host "##vso[task.setvariable variable=PRClosing;isOutput=true]$PRClosing"      
-    condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
-  - task: AzureCLI@2
-    displayName: 'Troubleshoot'
-    inputs:
-      azureSubscription: $(serviceConnection)
-      scriptType: 'ps'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        write-host "you should see variable values...."
-        write-host "$(PRHeader)"
-        write-host "$(PRSummary)"
-        write-host "$(PRDetails)"
-        write-host "$(PRClosing)"
-        write-host "or like this"
-        write-host "$(Preview.PRHeader)"
-        write-host "$(Preview.PRSummary)"
-        write-host "$(Preview.PRDetails)"
-        write-host "$(Preview.PRClosing)"       
+    condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))     
         
     condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))              
   - task: GitHubComment@0
