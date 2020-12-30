@@ -66,11 +66,7 @@ steps:
         $(Preview.PRHeader)
         $(Preview.PRSummary)
         $(Preview.PRDetails)
-        $(Preview.PRClosing)
-        $(PRHeader)
-        $(PRSummary)
-        $(PRDetails)
-        $(PRClosing)        
+        $(Preview.PRClosing)    
     condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
   - task: AzureResourceManagerTemplateDeployment@3
