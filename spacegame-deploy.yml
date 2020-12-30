@@ -63,16 +63,16 @@ steps:
       scriptType: 'ps'
       scriptLocation: 'inlineScript'
       inlineScript: |
-        write "you should see variable values...."
-        write-host $(PRHeader)
-        write-host $(PRSummary)
-        write-host $(PRDetails)
-        write-host $(PRClosing)
-        write " or like this"
-        write-host $(Preview.PRHeader)
-        write-host $(Preview.PRSummary)
-        write-host $(Preview.PRDetails)
-        write-host $(Preview.PRClosing)        
+        write-host "you should see variable values...."
+        write-host "$(PRHeader)"
+        write-host "$(PRSummary)"
+        write-host "$(PRDetails)"
+        write-host "$(PRClosing)"
+        write-host "or like this"
+        write-host "$(Preview.PRHeader)"
+        write-host "$(Preview.PRSummary)"
+        write-host "$(Preview.PRDetails)"
+        write-host "$(Preview.PRClosing)"       
         
     condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))              
   - task: GitHubComment@0
