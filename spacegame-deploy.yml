@@ -55,7 +55,18 @@ steps:
         Write-Host "##vso[task.setvariable variable=PRDetails;]$PRDetails"
         Write-Host "##vso[task.setvariable variable=PRClosing;]$PRClosing"
     condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
-
+  - task: AzureCLI@2
+    displayName: 'Troubleshoot'
+    inputs:
+      azureSubscription: $(serviceConnection)
+      scriptType: 'ps'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        $PRHeader
+        $PRSummary
+        $PRDetails
+        $PRClosing
+    condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))              
   - task: GitHubComment@0
     displayName: For PR's, add GitHub comment with ARM what-if output
     inputs:
