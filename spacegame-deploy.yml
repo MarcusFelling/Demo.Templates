@@ -56,8 +56,7 @@ steps:
         Write-Host "##vso[task.setvariable variable=PRDetails;isOutput=true]$PRDetails"
         Write-Host "##vso[task.setvariable variable=PRClosing;isOutput=true]$PRClosing"      
     condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))     
-        
-    condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))              
+                   
   - task: GitHubComment@0
     displayName: For PR's, add GitHub comment with ARM what-if output
     inputs:
@@ -68,6 +67,10 @@ steps:
         $(Preview.PRSummary)
         $(Preview.PRDetails)
         $(Preview.PRClosing)
+        $(PRHeader)
+        $(PRSummary)
+        $(PRDetails)
+        $(PRClosing)        
     condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
   - task: AzureResourceManagerTemplateDeployment@3
