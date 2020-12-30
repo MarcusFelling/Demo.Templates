@@ -35,6 +35,7 @@ steps:
       testRunTitle: 'ARM Template Toolkit Tests (arm-ttk)'
     condition: always()
   - task: AzureCLI@2
+    name: Preview
     displayName: 'Preview ARM Template'
     inputs:
       azureSubscription: $(serviceConnection)
@@ -53,12 +54,7 @@ steps:
         Write-Host "##vso[task.setvariable variable=PRHeader;isOutput=true]$PRHeader"
         Write-Host "##vso[task.setvariable variable=PRSummary;isOutput=true]$PRSummary"
         Write-Host "##vso[task.setvariable variable=PRDetails;isOutput=true]$PRDetails"
-        Write-Host "##vso[task.setvariable variable=PRClosing;isOutput=true]$PRClosing"
-        # Troubleshooting ***REMOVE***
-        write-host $PRHeader
-        write-host $PRSummary
-        write-host $PRDetails
-        write-host $PRClosing        
+        Write-Host "##vso[task.setvariable variable=PRClosing;isOutput=true]$PRClosing"      
     condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
   - task: AzureCLI@2
     displayName: 'Troubleshoot'
@@ -68,10 +64,16 @@ steps:
       scriptLocation: 'inlineScript'
       inlineScript: |
         write "you should see variable values...."
-        write-host $PRHeader
-        write-host $PRSummary
-        write-host $PRDetails
-        write-host $PRClosing
+        write-host $(PRHeader)
+        write-host $(PRSummary)
+        write-host $(PRDetails)
+        write-host $(PRClosing)
+        write " or like this"
+        write-host $(Preview.PRHeader)
+        write-host $(Preview.PRSummary)
+        write-host $(Preview.PRDetails)
+        write-host $(Preview.PRClosing)        
+        
     condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))              
   - task: GitHubComment@0
     displayName: For PR's, add GitHub comment with ARM what-if output
@@ -79,10 +81,10 @@ steps:
       gitHubConnection: 'MarcusFelling'
       repositoryName: 'MarcusFelling/Demo.SpaceGame'
       comment: | 
-        $(PRHeader)
-        $(PRSummary)
-        $(PRDetails)
-        $(PRClosing)
+        $(Preview.PRHeader)
+        $(Preview.PRSummary)
+        $(Preview.PRDetails)
+        $(Preview.PRClosing)
     condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
 
   - task: AzureResourceManagerTemplateDeployment@3
