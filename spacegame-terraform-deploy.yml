@@ -75,13 +75,6 @@ steps:
     backendAzureRmStorageAccountName: '$(terraformstorageaccount) '
     backendAzureRmContainerName: terraform
     backendAzureRmKey: '$(storagekey)'
-- task: GitHubComment@0
-  displayName: For PR's, add GitHub comment with Terraform Plan output
-  inputs:
-    gitHubConnection: 'MarcusFelling'
-    repositoryName: 'MarcusFelling/Demo.SpaceGame'
-    comment: '#### Terraform Plan 📖:Successful'
-  condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
   
 - task: TerraformTaskV1@0
   displayName: 'Terraform : apply -auto-approve'
