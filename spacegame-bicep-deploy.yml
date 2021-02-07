@@ -43,7 +43,7 @@ steps:
       scriptLocation: 'inlineScript'
       inlineScript: |
         # Run deployment using what-if
-        $results = az deployment group what-if --resource-group $(appresourcegroup) --name $(appservicename) --template-file $(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/webapp.json | out-string
+        $results = az deployment group what-if --resource-group $(appresourcegroup) --name $(appservicename) --template-file $(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/main.json | out-string
         # Remove special characters from output stream
         $results = $results | ForEach-Object { $_ -replace '\x1b\[[0-9;]*m','' }
         # Capture results to update the GitHub PR with comment in next task
