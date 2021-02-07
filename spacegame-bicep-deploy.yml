@@ -37,12 +37,10 @@ steps:
     
   - task: AzureResourceManagerTemplateDeployment@3
     displayName: 'Apply ARM Template'
-    inputs:                
-      deploymentScope: 'Resource Group'
-      azureResourceManagerConnection: $(serviceConnection)
-      subscriptionId: $(subscriptionID)
-      action: 'Create Or Update Resource Group'
-      resourceGroupName: '$(appresourcegroup)'
+    inputs:
+      deploymentScope: 'Subscription'
+      azureResourceManagerConnection: '$(serviceConnection)'
+      subscriptionId: '$(subscriptionID)'
       location: '$(region)'
       templateLocation: 'Linked artifact'
       csmFile: '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
