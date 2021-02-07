@@ -47,7 +47,7 @@ steps:
       templateLocation: 'Linked artifact'
       csmFile: '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
       deploymentMode: 'Incremental'
-    condition: and(succeeded(), eq(variables['infrChange'], 'True'))   
+    condition: succeeded())   
 
   - task: AzureWebApp@1
     displayName: 'Azure App Service Deploy: website'
