@@ -34,41 +34,7 @@ steps:
       testResultsFiles: '$(Pipeline.Workspace)\dropARM\*-armttk.xml'
       testRunTitle: 'ARM Template Toolkit Tests (arm-ttk)'
     condition: always()
-  - task: AzureCLI@2
-    name: Preview
-    displayName: 'Preview ARM Template'
-    inputs:
-      azureSubscription: $(serviceConnection)
-      scriptType: 'ps'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        # Run deployment using what-if
-        $results = az deployment group what-if --resource-group $(appresourcegroup) --name $(appservicename) --template-file $(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/main.json | out-string
-        # Remove special characters from output stream
-        $results = $results | ForEach-Object { $_ -replace '\x1b\[[0-9;]*m','' }
-        # Capture results to update the GitHub PR with comment in next task
-        $PRHeader = "#### ARM Deployment Preview" 
-        $PRSummary = "<details><summary>Show Preview</summary>"
-        $PRDetails = $results
-        $PRClosing = "</details>"
-        Write-Host "##vso[task.setvariable variable=PRHeader;isOutput=true]$PRHeader"
-        Write-Host "##vso[task.setvariable variable=PRSummary;isOutput=true]$PRSummary"
-        Write-Host "##vso[task.setvariable variable=PRDetails;isOutput=true]$PRDetails"
-        Write-Host "##vso[task.setvariable variable=PRClosing;isOutput=true]$PRClosing"      
-    condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))     
-                   
-  - task: GitHubComment@0
-    displayName: Add PR comment with ARM what-if output
-    inputs:
-      gitHubConnection: 'MarcusFelling'
-      repositoryName: 'MarcusFelling/Demo.SpaceGame'
-      comment: | 
-        $(Preview.PRHeader)
-        $(Preview.PRSummary)
-        $(Preview.PRDetails)
-        $(Preview.PRClosing)    
-    condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
-
+    
   - task: AzureResourceManagerTemplateDeployment@3
     displayName: 'Apply ARM Template'
     inputs:                
