@@ -44,6 +44,7 @@ steps:
       location: '$(region)'
       templateLocation: 'Linked artifact'
       csmFile: '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
+      overrideParameters: '-dbPassword $(adminPassword)'
       deploymentMode: 'Incremental'
     condition: succeeded() 
 
