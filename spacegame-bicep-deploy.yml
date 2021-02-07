@@ -81,7 +81,7 @@ steps:
       templateLocation: 'Linked artifact'
       csmFile: '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
       deploymentMode: 'Incremental'
-    condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
+    condition: and(succeeded(), eq(variables['infrChange'], 'True'))   
 
   - task: AzureWebApp@1
     displayName: 'Azure App Service Deploy: website'
@@ -89,7 +89,7 @@ steps:
       azureSubscription: '$(serviceConnection)'
       appName: '$(appservicename)'
       package: '$(Pipeline.Workspace)/dropApp/$(buildConfiguration)/*.zip'
-    condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
+    condition: succeeded()
 
   - task: GitHubComment@0
     displayName: 'Add PR comment with site url'  
@@ -97,4 +97,4 @@ steps:
       gitHubConnection: 'MarcusFelling'
       repositoryName: '$(Build.Repository.Name)'
       comment: 'The new app is ready for testing: $(SITE_URL)'
-    condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))     
+    condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'), eq(variables['System.StageName'], 'Dev'))     
