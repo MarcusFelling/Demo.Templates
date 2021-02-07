@@ -35,17 +35,14 @@ steps:
       testRunTitle: 'ARM Template Toolkit Tests (arm-ttk)'
     condition: always()
     
-  - task: AzureResourceManagerTemplateDeployment@3
-    displayName: 'Apply ARM Template'
+  - task: AzureCLI@2
+    name: Preview
+    displayName: 'Deploy ARM Template'
     inputs:
-      deploymentScope: 'Subscription'
-      azureResourceManagerConnection: '$(serviceConnection)'
-      subscriptionId: '$(subscriptionID)'
-      location: '$(region)'
-      templateLocation: 'Linked artifact'
-      csmFile: '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
-      overrideParameters: '-dbPassword $(adminPassword)'
-      deploymentMode: 'Incremental'
+      azureSubscription: $(serviceConnection)
+      scriptType: 'ps'
+      scriptLocation: 'inlineScript'
+      inlineScript: az deployment sub create --template-file $(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/main.json --parameters dbPassword=$(adminPassword)
     condition: succeeded() 
 
   - task: AzureWebApp@1
