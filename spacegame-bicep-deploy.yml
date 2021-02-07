@@ -58,7 +58,7 @@ steps:
     condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))     
                    
   - task: GitHubComment@0
-    displayName: For PR's, add GitHub comment with ARM what-if output
+    displayName: Add PR comment with ARM what-if output
     inputs:
       gitHubConnection: 'MarcusFelling'
       repositoryName: 'MarcusFelling/Demo.SpaceGame'
@@ -100,3 +100,11 @@ steps:
       inlineScript: |
         az webapp config connection-string set --name $(appservicename) --resource-group $(appresourcegroup) --connection-string-type SQLAzure --settings "DefaultConnection=Server=tcp:$(servername).database.windows.net,1433;Initial Catalog=$(databasename);Persist Security Info=False;User ID=$(adminlogin);Password=$(adminPassword);MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
     condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
+
+  - task: GitHubComment@0
+    displayName: 'Add PR comment with site url'  
+    inputs:
+      gitHubConnection: 'MarcusFelling'
+      repositoryName: '$(Build.Repository.Name)'
+      comment: 'The new app is ready for testing: $(SITE_URL)'
+    condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))     
