@@ -42,7 +42,7 @@ steps:
       azureSubscription: $(serviceConnection)
       scriptType: 'ps'
       scriptLocation: 'inlineScript'
-      inlineScript: az deployment sub create --location $(region) --template-file $(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/main.json --parameters dbPassword=$(adminPassword)
+      inlineScript: az deployment sub create --location WestUS --template-file $(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/main.json --parameters dbPassword=$(adminPassword)
     condition: succeeded() 
 
   - task: AzureWebApp@1
