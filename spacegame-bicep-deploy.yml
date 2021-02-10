@@ -20,20 +20,6 @@ steps:
       tokenSuffix: '__'
       useLegacyPattern: false
       enableTelemetry: true
-
-  - task: RunARMTTKTests@1
-    displayName: 'Run Azure Resource Manager Template Toolkit'
-    inputs:
-      templatelocation: '$(Pipeline.Workspace)\dropARM\Tailspin.SpaceGame.Bicep\*'
-      resultLocation: '$(Pipeline.Workspace)\dropARM\'
-
-  - task: PublishTestResults@2
-    displayName: 'Publish Azure Resource Manager Template Toolkit results'
-    inputs:
-      testResultsFormat: 'NUnit'
-      testResultsFiles: '$(Pipeline.Workspace)\dropARM\*-armttk.xml'
-      testRunTitle: 'ARM Template Toolkit Tests (arm-ttk)'
-    condition: always()
     
   - task: AzureCLI@2
     name: Preview
