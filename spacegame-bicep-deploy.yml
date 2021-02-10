@@ -24,7 +24,7 @@ steps:
   - task: RunARMTTKTests@1
     displayName: 'Run Azure Resource Manager Template Toolkit'
     inputs:
-      templatelocation: '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/*.json'
+      templatelocation: '$(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/main.json'
       resultLocation: '$(Pipeline.Workspace)/dropARM/'
 
   - task: PublishTestResults@2
