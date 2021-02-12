@@ -1,14 +1,4 @@
 steps:
-- task: PowerShell@2
-  displayName: 'Output Chrome version installed on hosted-agent, to align ChromeDriver version in UI tests'
-  inputs:
-    targetType: 'inline'
-    script: '(Get-Item (Get-ItemProperty ''HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe'').''(Default)'').VersionInfo'
-- task: DotNetCoreInstaller@2
-  displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
-  inputs:
-    packageType: sdk
-    version: '$(dotnetSdkVersion)'
 - task: DotNetCoreCLI@2
   displayName: 'Build the project - $(buildConfiguration)'
   inputs:
