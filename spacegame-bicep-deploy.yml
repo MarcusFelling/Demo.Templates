@@ -89,12 +89,4 @@ steps:
       azureSubscription: '$(serviceConnection)'
       appName: '$(appservicename)'
       package: '$(Pipeline.Workspace)/dropApp/$(buildConfiguration)/*.zip'
-    condition: succeeded()
-
-  - task: GitHubComment@0
-    displayName: 'Add PR comment with site url'  
-    inputs:
-      gitHubConnection: 'MarcusFelling'
-      repositoryName: '$(Build.Repository.Name)'
-      comment: 'The new app is ready for testing: $(SITE_URL)'
-    condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'), eq(variables['System.StageName'], 'Dev'))     
+    condition: succeeded()   
