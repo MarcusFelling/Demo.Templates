@@ -3,8 +3,8 @@ steps:
   displayName: 'Set environment variable that tests use for site URL'
   inputs:
     script: |
-     'setx SITE_URL $(SITE_URL) /M'
-     'echo "site URL to test:" $(SITE_URL)'
+     setx SITE_URL $(SITE_URL) /M
+     echo "site URL to test:" $(SITE_URL)
 - task: DotNetCoreCLI@2
   displayName: 'Build the project - $(buildConfiguration)'
   inputs:
