@@ -1,4 +1,8 @@
 steps:
+- task: CmdLine@2
+  displayName: 'Set environment variable that tests use for site URL'
+  inputs:
+    script: 'setx SITE_URL $(SITE_URL) /M'
 - task: DotNetCoreCLI@2
   displayName: 'Build the project - $(buildConfiguration)'
   inputs:
@@ -13,3 +17,5 @@ steps:
     publishTestResults: true
     projects: '$(System.DefaultWorkingDirectory)/**/*UITests.csproj'
     testRunTitle: 'UI Tests'
+
+    
