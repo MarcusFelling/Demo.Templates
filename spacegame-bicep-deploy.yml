@@ -23,9 +23,19 @@ steps:
       tokenSuffix: '__'
       useLegacyPattern: false
       enableTelemetry: true
-    
+
   - task: AzureCLI@2
-    name: Preview
+    displayName: 'Preview infrastructure changes'
+    inputs:
+      azureSubscription: $(serviceConnection)
+      scriptType: 'ps'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az deployment sub what-if --location WestUS --template-file $(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/main.json
+    condition: succeeded() 
+
+
+  - task: AzureCLI@2
     displayName: 'Deploy ARM Template'
     inputs:
       azureSubscription: $(serviceConnection)
