@@ -33,10 +33,13 @@ steps:
       inlineScript: |
         # Display results in pipeline
         az deployment sub what-if --location WestUS --template-file $(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/main.json
+        
         "show delete results"
         az deployment sub what-if --location WestUS --template-file $(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/main.json --exclude-change-types Create Deploy Ignore Modify NoChange --no-pretty-print
+        
         # Look for resource deletes
         $deletes = az deployment sub what-if --location WestUS --template-file $(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/main.json --exclude-change-types Create Deploy Ignore Modify NoChange --no-pretty-print
+
         if ($deletes -contains $true) {
           Install-Module VSTeam -Scope CurrentUser -Force
           Set-VSTeamAccount –Account $(System.CollectionUri) -PersonalAccessToken $(PAT)
@@ -57,7 +60,8 @@ steps:
             Description = ""
             Type = "Vsts"
             Variables = $vars}
-          Update-VSTeamVariableGroup @methodParameters}
+          Update-VSTeamVariableGroup @methodParameters
+        }
 
   - task: AzureCLI@2
     displayName: 'Deploy ARM Template'
@@ -116,6 +120,20 @@ steps:
             Type = "Vsts"
             Variables = $vars}
           Update-VSTeamVariableGroup @methodParameters}
+
+  - task: SqlAzureDacpacDeployment@1
+    displayName: 'Deploy DB'
+    inputs:
+      azureSubscription: '$(serviceConnection)'
+      authenticationType: 'server'
+      serverName: '$(sqlServerName).database.windows.net'
+      databaseName: '$(dbName)'
+      sqlUsername: '$(adminlogin)'
+      sqlPassword: '$(adminPassword)'
+      deployType: 'DacpacTask'
+      deploymentAction: 'Publish'
+      dacpacFile: '$(Pipeline.Workspace)/dropDacpac/Tailspin.SpaceGame.Database/bin/Debug/Tailspin.SpaceGame.Database.dacpac'
+      ipDetectionMethod: 'AutoDetect'
 
   - task: AzureWebApp@1
     displayName: 'Azure App Service Deploy: website'
