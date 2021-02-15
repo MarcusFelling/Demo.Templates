@@ -25,15 +25,39 @@ steps:
       enableTelemetry: true
 
   - task: AzureCLI@2
-    displayName: 'Preview infrastructure changes'
+    displayName: 'Preview ARM template changes'
     inputs:
       azureSubscription: $(serviceConnection)
       scriptType: 'ps'
       scriptLocation: 'inlineScript'
       inlineScript: |
+        # Display results in pipeline
         az deployment sub what-if --location WestUS --template-file $(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/main.json
-    condition: succeeded() 
-
+        "show delete results"
+        az deployment sub what-if --location WestUS --template-file $(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/main.json --exclude-change-types Create Deploy Ignore Modify NoChange --no-pretty-print
+        # Look for resource deletes
+        $deletes = az deployment sub what-if --location WestUS --template-file $(Pipeline.Workspace)/dropARM/Tailspin.SpaceGame.Bicep/main.json --exclude-change-types Create Deploy Ignore Modify NoChange --no-pretty-print
+        if ($deletes -contains $true) {
+          Install-Module VSTeam -Scope CurrentUser -Force
+          Set-VSTeamAccount –Account $(System.CollectionUri) -PersonalAccessToken $(PAT)
+          $methodParameters = @{
+            ProjectName = "$(System.TeamProject)"
+            Name = "SpaceGame"}
+          $vg = Get-VSTeamVariableGroup @methodParameters
+          $vars = @{}
+          $vg.variables | Get-Member -MemberType *Property | %{$vars.($_.Name) = $vg.variables.($_.Name)}
+          $varName = "infraDeleted"
+          $vars.$varName= @{}
+          $vars.$varName.value = "True"
+          $vars.$varName.isSecret = $false
+          $methodParameters = @{
+            id = $vg.id
+            ProjectName = "$(System.TeamProject)"
+            Name = "SpaceGame"
+            Description = ""
+            Type = "Vsts"
+            Variables = $vars}
+          Update-VSTeamVariableGroup @methodParameters}
 
   - task: AzureCLI@2
     displayName: 'Deploy ARM Template'
@@ -46,7 +70,7 @@ steps:
     condition: succeeded() 
 
   - task: SqlAzureDacpacDeployment@1
-    displayName: Generate schema change script
+    displayName: Generate DB schema change script
     inputs:
       azureSubscription: '$(serviceConnection)'
       authenticationType: 'server'
@@ -60,7 +84,7 @@ steps:
       ipDetectionMethod: 'AutoDetect'
 
   - task: PowerShell@2
-    displayName: Show change script and check for schema changes
+    displayName: Show DB change script and check for schema changes
     inputs:
       targetType: 'inline'
       script: | 
