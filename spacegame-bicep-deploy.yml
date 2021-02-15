@@ -107,9 +107,32 @@ steps:
       ipDetectionMethod: 'AutoDetect'
 
   - task: AzureWebApp@1
-    displayName: 'Azure App Service Deploy: website'
+    displayName: 'Azure App Service Deploy (No Slot)'
+    condition: eq(variables['System.StageName'], 'dev')
     inputs:
       azureSubscription: '$(serviceConnection)'
       appName: '$(appservicename)'
       package: '$(Pipeline.Workspace)/dropApp/$(buildConfiguration)/*.zip'
-    condition: succeeded()   
+    condition: succeeded()
+
+  - task: AzureWebApp@1
+    displayName: 'Azure App Service Deploy (Deploy Slot)'
+    condition: ne(variables['System.StageName'], 'dev')
+    inputs:
+      azureSubscription: '$(serviceConnection)'
+      deployToSlotOrASE: 'true'
+      slotName: 'swap'
+      appName: '$(appservicename)'
+      package: '$(Pipeline.Workspace)/dropApp/$(buildConfiguration)/*.zip'
+    condition: succeeded()  
+
+  - task: AzureAppServiceManage@0
+    displayName: 'Swap deployment slots'
+    condition: ne(variables['System.StageName'], 'dev')    
+    inputs:
+      azureSubscription: '$(serviceConnection)'
+      resourceGroupName: '$(resourceGroup)'
+      webAppName: '$(appservicename)'
+      sourceSlot: 'swap'
+      targetSlot: 'production'
+      action: 'Swap Slots'
