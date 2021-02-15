@@ -107,7 +107,7 @@ steps:
       ipDetectionMethod: 'AutoDetect'
 
   - task: AzureWebApp@1
-    displayName: 'Azure App Service Deploy (No Slot)'
+    displayName: 'Deploy app (no slot)'
     condition: eq(variables['System.StageName'], 'dev')
     inputs:
       azureSubscription: '$(serviceConnection)'
@@ -115,7 +115,7 @@ steps:
       package: '$(Pipeline.Workspace)/dropApp/$(buildConfiguration)/*.zip'
 
   - task: AzureWebApp@1
-    displayName: 'Azure App Service Deploy (Deploy Slot)'
+    displayName: 'Deploy app to deploy slot'
     condition: ne(variables['System.StageName'], 'dev')
     inputs:
       azureSubscription: '$(serviceConnection)'
