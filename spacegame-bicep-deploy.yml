@@ -25,6 +25,7 @@ steps:
       enableTelemetry: true
 
   - task: AzureCLI@2
+    # Only run in Dev. What-if is not production ready because of issues like https://github.com/Azure/arm-template-whatif/issues/73
     displayName: 'Preview ARM template changes'
     condition: eq(variables['System.StageName'], 'dev')
     inputs:
