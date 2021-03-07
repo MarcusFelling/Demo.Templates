@@ -33,7 +33,7 @@ steps:
       scriptType: 'ps'
       scriptLocation: 'inlineScript'
       inlineScript: |
-        az deployment sub what-if --location $(region) --template-file $(Pipeline.Workspace)/dropARM/$(infraAsCodeFolder)/main.json --parameters devenv=$(devEnv)
+        az deployment sub what-if --location $(region) --template-file $(Pipeline.Workspace)/dropARM/$(infraAsCodeFolder)/main.json --parameters "devEnv=$(devEnv)"
     
   - task: AzureCLI@2
     displayName: 'Deploy ARM Template'
@@ -42,7 +42,7 @@ steps:
       scriptType: 'ps'
       scriptLocation: 'inlineScript'
       inlineScript: |
-        az deployment sub create --location $(region) --template-file $(Pipeline.Workspace)/dropARM/$(infraAsCodeFolder)/main.json --parameters devenv=$(devEnv)
+        az deployment sub create --location $(region) --template-file $(Pipeline.Workspace)/dropARM/$(infraAsCodeFolder)/main.json --parameters "devEnv=$(devEnv)"
     condition: succeeded() 
 
   - task: SqlAzureDacpacDeployment@1
