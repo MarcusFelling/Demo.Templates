@@ -31,7 +31,7 @@ steps:
     inputs:
       deploymentScope: 'Subscription'
       azureResourceManagerConnection: '$(serviceConnection)'
-      subscriptionId: '$(serviceConnection)'
+      subscriptionId: '$(subscriptionID)'
       location: '$(region)'
       templateLocation: 'Linked artifact'
       csmFile: '$(Pipeline.Workspace)/dropARM/$(infraAsCodeFolder)/main.json'
@@ -44,7 +44,7 @@ steps:
     inputs:
       deploymentScope: 'Subscription'
       azureResourceManagerConnection: '$(serviceConnection)'
-      subscriptionId: '$(serviceConnection)'
+      subscriptionId: '$(subscriptionID)'
       location: '$(region)'
       templateLocation: 'Linked artifact'
       csmFile: '$(Pipeline.Workspace)/dropARM/$(infraAsCodeFolder)/main.json'
