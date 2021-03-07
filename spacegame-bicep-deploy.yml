@@ -24,26 +24,32 @@ steps:
       useLegacyPattern: false
       enableTelemetry: true
 
-  - task: AzureCLI@2
+  - task: AzureResourceManagerTemplateDeployment@3
     # Only run in Dev. What-if is not production ready because of issues like https://github.com/Azure/arm-template-whatif/issues/73
     displayName: 'Preview ARM template changes'
-    condition: eq(variables['System.StageName'], 'dev')
+    condition: eq(variables['System.StageName'], 'dev')  
     inputs:
-      azureSubscription: '$(serviceConnection)'
-      scriptType: 'ps'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        az deployment sub what-if --location $(region) --template-file $(Pipeline.Workspace)/dropARM/$(infraAsCodeFolder)/main.json --parameters "devEnv=$(devEnv)"
-    
-  - task: AzureCLI@2
+      deploymentScope: 'Subscription'
+      azureResourceManagerConnection: '$(serviceConnection)'
+      subscriptionId: '$(serviceConnection)'
+      location: '$(region)'
+      templateLocation: 'Linked artifact'
+      csmFile: '$(Pipeline.Workspace)/dropARM/$(infraAsCodeFolder)/main.json'
+      overrideParameters: '–devEnv $(devEnv)'
+      deploymentMode: 'Validation'
+
+  - task: AzureResourceManagerTemplateDeployment@3    
     displayName: 'Deploy ARM Template'
+    condition: succeeded()
     inputs:
-      azureSubscription: '$(serviceConnection)'
-      scriptType: 'ps'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        az deployment sub create --location $(region) --template-file $(Pipeline.Workspace)/dropARM/$(infraAsCodeFolder)/main.json --parameters "devEnv=$(devEnv)"
-    condition: succeeded() 
+      deploymentScope: 'Subscription'
+      azureResourceManagerConnection: '$(serviceConnection)'
+      subscriptionId: '$(serviceConnection)'
+      location: '$(region)'
+      templateLocation: 'Linked artifact'
+      csmFile: '$(Pipeline.Workspace)/dropARM/$(infraAsCodeFolder)/main.json'
+      overrideParameters: '–devEnv $(devEnv)'
+      deploymentMode: 'Incremental'
 
   - task: SqlAzureDacpacDeployment@1
     displayName: Generate DB schema change script
@@ -58,6 +64,7 @@ steps:
       deploymentAction: 'Script'
       dacpacFile: '$(Pipeline.Workspace)/dropDacpac/$(dbSchemaFolder)/bin/Debug/$(dbSchemaFolder).dacpac'
       ipDetectionMethod: 'AutoDetect'
+    condition: succeeded()
 
   - task: PowerShell@2
     displayName: Show DB change script and check for schema changes
@@ -92,6 +99,7 @@ steps:
             Type = "Vsts"
             Variables = $vars}
           Update-VSTeamVariableGroup @methodParameters}
+    condition: succeeded()        
 
   - task: SqlAzureDacpacDeployment@1
     displayName: 'Deploy DB'
@@ -106,10 +114,11 @@ steps:
       deploymentAction: 'Publish'
       dacpacFile: '$(Pipeline.Workspace)/dropDacpac/$(dbSchemaFolder)/bin/Debug/$(dbSchemaFolder).dacpac'
       ipDetectionMethod: 'AutoDetect'
+    condition: succeeded()      
 
   - task: AzureWebApp@1
     displayName: 'Deploy app (no slot)'
-    condition: eq(variables['System.StageName'], 'dev')
+    condition: and(succeeded(), eq(variables['System.StageName'], 'dev'))
     inputs:
       azureSubscription: '$(serviceConnection)'
       appName: '$(appservicename)'
@@ -117,7 +126,7 @@ steps:
 
   - task: AzureWebApp@1
     displayName: 'Deploy app to deploy slot'
-    condition: ne(variables['System.StageName'], 'dev')
+    condition: and(succeeded(), ne(variables['System.StageName'], 'dev'))
     inputs:
       azureSubscription: '$(serviceConnection)'
       deployToSlotOrASE: 'true'
@@ -127,7 +136,7 @@ steps:
 
   - task: AzureAppServiceManage@0
     displayName: 'Swap deployment slots'
-    condition: ne(variables['System.StageName'], 'dev')    
+    condition: and(succeeded(), ne(variables['System.StageName'], 'dev'))  
     inputs:
       azureSubscription: '$(serviceConnection)'
       resourceGroupName: '$(resourceGroup)'
