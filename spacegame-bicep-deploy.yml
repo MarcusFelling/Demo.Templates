@@ -34,8 +34,7 @@ steps:
       subscriptionId: '$(subscriptionID)'
       location: '$(region)'
       templateLocation: 'Linked artifact'
-      csmFile: '$(Pipeline.Workspace)/dropARM/$(infraAsCodeFolder)/main.json'
-      overrideParameters: '–devEnv $(devEnv)'
+      csmFile: '$(Pipeline.Workspace)/dropARM/$(infraAsCodeFolder)/main.json'      
       deploymentMode: 'Validation'
 
   - task: AzureResourceManagerTemplateDeployment@3    
@@ -48,7 +47,6 @@ steps:
       location: '$(region)'
       templateLocation: 'Linked artifact'
       csmFile: '$(Pipeline.Workspace)/dropARM/$(infraAsCodeFolder)/main.json'
-      overrideParameters: '–devEnv $(devEnv)'
       deploymentMode: 'Incremental'
 
   - task: SqlAzureDacpacDeployment@1
