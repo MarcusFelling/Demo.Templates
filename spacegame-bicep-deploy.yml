@@ -13,7 +13,7 @@ steps:
   - task: replacetokens@3
     displayName: 'Replace Tokens with Variables'
     inputs:
-      targetFiles: '$(Pipeline.Workspace)/dropARM/$(infraAsCodeFolder)/*.json'
+      targetFiles: '$(Pipeline.Workspace)/dropARM/$(infraAsCodeFolder)/*.bicep'
       encoding: 'auto'
       writeBOM: true
       escapeType: 'none'
