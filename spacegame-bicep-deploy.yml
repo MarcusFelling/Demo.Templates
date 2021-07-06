@@ -13,7 +13,7 @@ steps:
   - task: replacetokens@3
     displayName: 'Replace Tokens with Variables'
     inputs:
-      targetFiles: '$(Pipeline.Workspace)/dropARM/$(infraAsCodeFolder)/*.bicep'
+      targetFiles: '$(Pipeline.Workspace)/dropIaC/$(infraAsCodeFolder)/*.bicep'
       encoding: 'auto'
       writeBOM: true
       escapeType: 'none'
@@ -32,7 +32,7 @@ steps:
       scriptLocation: 'inlineScript'
       scriptType: 'batch'
       inlineScript: |
-        az deployment sub what-if --name "spacegamedeploy" --location "WestUS" --template-file "$(Pipeline.Workspace)\dropIaC\Tailspin.SpaceGame.Bicep\main.bicep"
+        az deployment sub what-if --name "spacegamedeploy" --location "WestUS" --template-file "$(Pipeline.Workspace)\dropIaC\$(infraAsCodeFolder)\main.bicep"
 
   - task: AzureCLI@2
     displayName: 'Deploy Infrastructure' 
@@ -42,7 +42,7 @@ steps:
       scriptLocation: 'inlineScript'
       scriptType: 'batch'
       inlineScript: | 
-        az deployment sub create --name "spacegamedeploy" --location "WestUS" --template-file "$(Pipeline.Workspace)\dropIaC\Tailspin.SpaceGame.Bicep\main.bicep"
+        az deployment sub create --name "spacegamedeploy" --location "WestUS" --template-file "$(Pipeline.Workspace)\dropIaC\$(infraAsCodeFolder)\main.bicep"
 
   - task: SqlAzureDacpacDeployment@1
     displayName: Generate DB schema change script
