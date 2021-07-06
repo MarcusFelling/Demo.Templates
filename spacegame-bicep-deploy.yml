@@ -32,7 +32,7 @@ steps:
       scriptLocation: 'inlineScript'
       scriptType: 'batch'
       inlineScript: |
-        az deployment sub what-if --name "spacegamedeploy" --location "WestUS" --template-file "$(Build.SourcesDirectory)\$(infraAsCodeFolder)\main.bicep"
+        az deployment sub what-if --name "spacegamedeploy" --location "WestUS" --template-file "dropIaC\main.bicep"
 
   - task: AzureCLI@2
     displayName: 'Deploy Infrastructure' 
@@ -42,7 +42,7 @@ steps:
       scriptLocation: 'inlineScript'
       scriptType: 'batch'
       inlineScript: | 
-        az deployment sub create --name "spacegamedeploy" --location "WestUS" --template-file "$(Build.SourcesDirectory)\$(infraAsCodeFolder)\main.bicep"
+        az deployment sub create --name "spacegamedeploy" --location "WestUS" --template-file "dropIaC\main.bicep"
 
   - task: SqlAzureDacpacDeployment@1
     displayName: Generate DB schema change script
