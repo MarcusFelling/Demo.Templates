@@ -16,6 +16,7 @@ steps:
       targetType: 'inline'
       script: | 
         Get-ChildItem -Recurse
+        Start-Sleep -seconds 6
 
   - task: replacetokens@3
     displayName: 'Replace Tokens with Variables'
