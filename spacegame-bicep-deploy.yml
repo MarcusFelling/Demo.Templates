@@ -1,11 +1,14 @@
 steps:
-  # Download artifacts for web app and db
+  # Download artifacts for web app, db, and IaC
   - download: current
     displayName: App Download
     artifact: dropApp
   - download: current
     displayName: Dacpac Download
     artifact: dropDacpac
+  - download: current
+    displayName: IaC Download
+    artifact: dropIaC
 
   - task: replacetokens@3
     displayName: 'Replace Tokens with Variables'
