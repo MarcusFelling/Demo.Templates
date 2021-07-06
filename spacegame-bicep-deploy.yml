@@ -1,11 +1,8 @@
 steps:
-  # Download artifacts for web app, db, and Bicep/ARM
+  # Download artifacts for web app and db
   - download: current
     displayName: App Download
     artifact: dropApp
-  - download: current
-    displayName: ARM Template Download
-    artifact: dropARM
   - download: current
     displayName: Dacpac Download
     artifact: dropDacpac
@@ -24,30 +21,23 @@ steps:
       useLegacyPattern: false
       enableTelemetry: true
 
-  - task: AzureResourceManagerTemplateDeployment@3
-    # Only run in Dev. What-if is not production ready because of issues like https://github.com/Azure/arm-template-whatif/issues/73
-    displayName: 'Preview ARM template changes'
-    condition: eq(variables['System.StageName'], 'dev')  
+  - task: AzureCLI@2
+    displayName: 'Preview Infrastructure changes' 
+    condition: eq(variables['System.StageName'], 'dev')
     inputs:
-      deploymentScope: 'Subscription'
-      azureResourceManagerConnection: '$(serviceConnection)'
-      subscriptionId: '$(subscriptionID)'
-      location: '$(region)'
-      templateLocation: 'Linked artifact'
-      csmFile: '$(Pipeline.Workspace)/dropARM/$(infraAsCodeFolder)/main.json'      
-      deploymentMode: 'Validation'
+      azureSubscription: $(serviceConnection)
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az deployment sub what-if --name 'spacegamedeploy' --location 'WestUS' --template-file '$(infraAsCodeFolder)/main.bicep'
 
-  - task: AzureResourceManagerTemplateDeployment@3    
-    displayName: 'Deploy ARM Template'
+  - task: AzureCLI@2
+    displayName: 'Deploy Infrastructure' 
     condition: succeeded()
     inputs:
-      deploymentScope: 'Subscription'
-      azureResourceManagerConnection: '$(serviceConnection)'
-      subscriptionId: '$(subscriptionID)'
-      location: '$(region)'
-      templateLocation: 'Linked artifact'
-      csmFile: '$(Pipeline.Workspace)/dropARM/$(infraAsCodeFolder)/main.json'
-      deploymentMode: 'Incremental'
+      azureSubscription: $(serviceConnection)
+      scriptLocation: 'inlineScript'
+      inlineScript: | 
+        az deployment sub create --name 'spacegamedeploy' --location 'WestUS' --template-file '$(infraAsCodeFolder)/main.bicep'
 
   - task: SqlAzureDacpacDeployment@1
     displayName: Generate DB schema change script
