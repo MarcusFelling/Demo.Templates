@@ -10,6 +10,13 @@ steps:
     displayName: IaC Download
     artifact: dropIaC
 
+  - task: PowerShell@2
+    displayName: show paths
+    inputs:
+      targetType: 'inline'
+      script: | 
+        Get-ChildItem -Recurse
+
   - task: replacetokens@3
     displayName: 'Replace Tokens with Variables'
     inputs:
