@@ -10,15 +10,6 @@ steps:
     displayName: IaC Download
     artifact: dropIaC
 
-  - task: PowerShell@2
-    displayName: show paths
-    inputs:
-      targetType: 'inline'
-      script: | 
-        Start-Sleep -seconds 6
-        Get-ChildItem -Recurse
-        Start-Sleep -seconds 6
-
   - task: replacetokens@3
     displayName: 'Replace Tokens with Variables'
     inputs:
@@ -41,7 +32,7 @@ steps:
       scriptLocation: 'inlineScript'
       scriptType: 'batch'
       inlineScript: |
-        az deployment sub what-if --name "spacegamedeploy" --location "WestUS" --template-file "dropIaC\main.bicep"
+        az deployment sub what-if --name "spacegamedeploy" --location "WestUS" --template-file "$(Pipeline.Workspace)\dropIaC\Tailspin.SpaceGame.Bicep\main.bicep"
 
   - task: AzureCLI@2
     displayName: 'Deploy Infrastructure' 
@@ -51,7 +42,7 @@ steps:
       scriptLocation: 'inlineScript'
       scriptType: 'batch'
       inlineScript: | 
-        az deployment sub create --name "spacegamedeploy" --location "WestUS" --template-file "dropIaC\main.bicep"
+        az deployment sub create --name "spacegamedeploy" --location "WestUS" --template-file "$(Pipeline.Workspace)\dropIaC\Tailspin.SpaceGame.Bicep\main.bicep"
 
   - task: SqlAzureDacpacDeployment@1
     displayName: Generate DB schema change script
