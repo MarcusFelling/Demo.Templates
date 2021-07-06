@@ -15,6 +15,7 @@ steps:
     inputs:
       targetType: 'inline'
       script: | 
+        Start-Sleep -seconds 6
         Get-ChildItem -Recurse
         Start-Sleep -seconds 6
 
