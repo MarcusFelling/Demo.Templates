@@ -27,7 +27,7 @@ steps:
     inputs:
       azureSubscription: $(serviceConnection)
       scriptLocation: 'inlineScript'
-      scriptType: 'shell'
+      scriptType: 'batch'
       inlineScript: |
         az deployment sub what-if --name 'spacegamedeploy' --location 'WestUS' --template-file '$(infraAsCodeFolder)/main.bicep'
 
@@ -37,7 +37,7 @@ steps:
     inputs:
       azureSubscription: $(serviceConnection)
       scriptLocation: 'inlineScript'
-      scriptType: 'shell'
+      scriptType: 'batch'
       inlineScript: | 
         az deployment sub create --name 'spacegamedeploy' --location 'WestUS' --template-file '$(infraAsCodeFolder)/main.bicep'
 
